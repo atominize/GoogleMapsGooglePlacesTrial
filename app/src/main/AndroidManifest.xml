@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.atominize.googlemapgoogleplacestrial">
+    package="com.atominize.googlemapsgoogleplacestrial">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
@@ -18,10 +18,10 @@
             android:value="@integer/google_play_services_version"/>
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="@string/google_maps_API_key"/>
+            android:value="@string/ApiKey" />
 
-        <activity android:name=".MapActivity"></activity>
-        <activity android:name=".MainActivity">
+        <activity android:name="com.atominize.googlemapsgoogleplacestrial.MapActivity"></activity>
+        <activity android:name="com.atominize.googlemapsgoogleplacestrial.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

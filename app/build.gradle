@@ -4,7 +4,7 @@ android {
     compileSdkVersion 29
     buildToolsVersion "29.0.1"
     defaultConfig {
-        applicationId "com.atominize.googlemapgoogleplacestrial"
+        applicationId "com.atominize.googlemapsgoogleplacestrial"
         minSdkVersion 16
         targetSdkVersion 29
         versionCode 1
@@ -12,9 +12,15 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
+        debug {
+            buildConfigField 'String', "ApiKey", MY_GOOGLE_API_KEY
+            resValue 'string', "ApiKey", MY_GOOGLE_API_KEY
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            buildConfigField 'String', "ApiKey", MY_GOOGLE_API_KEY
+            resValue 'string', "ApiKey", MY_GOOGLE_API_KEY
         }
     }
 }

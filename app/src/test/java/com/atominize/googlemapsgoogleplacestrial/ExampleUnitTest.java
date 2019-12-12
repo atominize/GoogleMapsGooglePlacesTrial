@@ -1,4 +1,4 @@
-package com.atominize.googlemapgoogleplacestrial;
+package com.atominize.googlemapsgoogleplacestrial;
 
 import org.junit.Test;
 
