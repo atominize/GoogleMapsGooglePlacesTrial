@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -21,6 +22,12 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
+
+import java.util.Arrays;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -36,6 +43,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private Boolean permissionsGranted = false;
     private GoogleMap mMap;
     private FusedLocationProviderClient fusedLocationProviderClient;
+    private AutocompleteSupportFragment autocompleteFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +51,38 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_map);
         
         getPermissions();
+
+        init();
+
+        initPlaceAuto();
+    }
+
+    private void init() {
+        autocompleteFragment = (AutocompleteSupportFragment)
+                getSupportFragmentManager().findFragmentById(R.id.autocomplete_fragment);
+    }
+
+    private void initPlaceAuto() {
+        String apiKey = BuildConfig.ApiKey;
+        Places.initialize(this, apiKey);
+        autocompleteFragment.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.NAME,
+                Place.Field.ADDRESS));
+
+        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(@NonNull Place place) {
+
+                Toast.makeText(MapActivity.this, place.getAddress() + " selected",
+                        Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onError(@NonNull Status status) {
+
+                Toast.makeText(MapActivity.this, "place error", Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     private void getLocation() {
@@ -150,7 +190,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             getLocation();
 
             mMap.setMyLocationEnabled(true);
-//            mMap.getUiSettings().setMyLocationButtonEnabled(true);
+            mMap.getUiSettings().setMyLocationButtonEnabled(false);
         }
+
     }
 }
