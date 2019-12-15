@@ -7,13 +7,20 @@ import androidx.core.content.ContextCompat;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -24,9 +31,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public static final String WRITE_STORAGE = Manifest.permission.WRITE_EXTERNAL_STORAGE;
     public static final String COURSE_LOCATION= Manifest.permission.ACCESS_COARSE_LOCATION;
     public static final String FINE_LOCATION= Manifest.permission.ACCESS_FINE_LOCATION;
+    public static final float DEFAULT_ZOOM = 15f;
 
     private Boolean permissionsGranted = false;
     private GoogleMap mMap;
+    private FusedLocationProviderClient fusedLocationProviderClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +43,43 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         setContentView(R.layout.activity_map);
         
         getPermissions();
+    }
+
+    private void getLocation() {
+        Log.d(TAG, "getLocation: getting the current location");
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this);
+
+        try {
+            if (permissionsGranted) {
+
+                Task location = fusedLocationProviderClient.getLastLocation();
+                location.addOnCompleteListener(new OnCompleteListener() {
+                    @Override
+                    public void onComplete(@NonNull Task task) {
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "onComplete: found location");
+                            Location currentLocation = (Location) task.getResult();
+
+                            moveMapCamera(new LatLng(currentLocation.getLatitude(),
+                                    currentLocation.getLongitude()), DEFAULT_ZOOM);
+
+                        } else {
+                            Log.d(TAG, "onComplete: current location is null");
+                            Toast.makeText(MapActivity.this,
+                                    "Unable to get current location", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+        } catch (SecurityException e) {
+            Log.e(TAG, "getLocation: SecurityException: " + e.getMessage());
+        }
+    }
+
+    private void moveMapCamera(LatLng latLng, float zoom) {
+        Log.d(TAG, "moveMapCamera: moving camera to: lat " + latLng.latitude + ", lng: " +
+                latLng.longitude);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, zoom));
     }
 
     private void initMap() {
@@ -99,5 +145,12 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         Log.d(TAG, "onMapReady: map is ready");
         Toast.makeText(this, "Map is Ready", Toast.LENGTH_SHORT).show();
         mMap = googleMap;
+
+        if (permissionsGranted) {
+            getLocation();
+
+            mMap.setMyLocationEnabled(true);
+//            mMap.getUiSettings().setMyLocationButtonEnabled(true);
+        }
     }
 }
